@@ -1,15 +1,27 @@
+const display = document.querySelector('.display');
+const video = document.getElementById('surpriseVideo');
+const calculator = document.querySelector('.calculator');
 let displayValue = '';
 
-
-function appendToDisplay(value) {
-    displayValue += value;
-    document.getElementById('display').value = displayValue || '0';
+function appendToDisplay(val) {
+    displayValue += val;
+    display.textContent = displayValue || '0';
 }
 
 function clearDisplay() {
     displayValue = '';
-    document.getElementById('display').value = '';
+    display.textContent = '0';
 }
+
+document.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const text = btn.textContent;
+        if (text === 'C') clearDisplay();
+        else if (text === '=') calculate();
+        else if (['+', '-', '×', '÷', '.'].includes(text)) appendToDisplay(text);
+        else appendToDisplay(text);
+    });
+});
 
 function calculate() {
     const videos = [
@@ -23,73 +35,84 @@ function calculate() {
 
     if (videos.length === 0) return;
 
-    const randomVideo = videos[Math.floor(Math.random() * videos.length)];
-    const videoElement = document.getElementById('surpriseVideo');
-    const calculator = document.querySelector('.calculator');
+    const randomVid = videos[Math.floor(Math.random() * videos.length)];
 
-    // Set video
-    videoElement.src = randomVideo;
-    videoElement.style.display = 'block';
-    videoElement.muted = false; 
-    videoElement.play();
+    video.src = randomVid;
+    video.style.display = 'block';
+    video.muted = false;
+    video.play();
 
-    
-    if (videoElement.requestFullscreen) {
-        videoElement.requestFullscreen();
-    } else if (videoElement.webkitRequestFullscreen) {
-        videoElement.webkitRequestFullscreen();
-    } else if (videoElement.msRequestFullscreen) {
-        videoElement.msRequestFullscreen();
-    }
+    // Fullscreen
+    if (video.requestFullscreen) video.requestFullscreen();
+    else if (video.webkitRequestFullscreen) video.webkitRequestFullscreen();
+    else if (video.msRequestFullscreen) video.msRequestFullscreen();
 
     calculator.style.opacity = '0';
-    setTimeout(() => {
-        calculator.style.display = 'none';
-        document.body.classList.add('video-active');
-    }, 600);
+    setTimeout(() => calculator.style.display = 'none', 500);
 
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
+    // === BRUTAL LOCKS ===
+    blockShortcuts();
+    blockContextMenu();
+    blockVisibilityChange();
+
+    // Kapag tapos na yung video → balik sa calculator
+    video.onended = () => {
+        exitBrutalMode();
+    };
+
+    // Fallback: kung hindi na-detect yung end, force reset after 5 mins
+    setTimeout(() => {
+        if (!video.paused) exitBrutalMode();
+    }, 300000); // 5 minutes
+}
+
+function exitBrutalMode() {
+    video.pause();
+    video.src = '';
+    video.style.display = 'none';
+
+    if (document.exitFullscreen) document.exitFullscreen();
+    else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+
+    calculator.style.display = 'block';
+    setTimeout(() => calculator.style.opacity = '1', 100);
+
+    clearDisplay();
+    // Remove event listeners if needed (optional)
+}
+
+function blockShortcuts() {
+    document.addEventListener('keydown', e => {
+        // Block Esc, F12, Ctrl+Shift+I/J/C, Ctrl+U, etc.
+        if (e.key === 'Escape' || e.key === 'F12' ||
+            (e.ctrlKey && e.shiftKey && ['I','J','C'].includes(e.key)) ||
+            (e.ctrlKey && e.key === 'u') ||
+            e.key === 'PrintScreen') {
             e.preventDefault();
             e.stopPropagation();
         }
     }, true);
 
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'F12' || 
-            (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
-            (e.ctrlKey && e.key === 'u')) {
-            e.preventDefault();
-            e.stopPropagation();
-            alert("Nice try 😏");
-        }
-    });
-
-   
-    document.addEventListener('contextmenu', e => e.preventDefault());
-
-  
-    document.addEventListener('visibilitychange', function() {
-        if (document.hidden) {
-            videoElement.play(); 
-        }
-    });
-
-    
-    document.addEventListener('keyup', function(e) {
+    document.addEventListener('keyup', e => {
         if (e.key === 'PrintScreen') {
-            alert("Screenshot blocked. Keep gooning 🔒");
+            navigator.clipboard.writeText('').then(() => {
+                alert('Screenshot blocked 😈');
+            });
         }
     });
-
-    
-    navigator.mediaDevices.getDisplayMedia = () => {
-        alert("Screen recording not allowed here 😈");
-        return Promise.reject("Access denied");
-    };
 }
 
+function blockContextMenu() {
+    document.addEventListener('contextmenu', e => e.preventDefault());
+}
 
-window.onload = () => {
-    document.getElementById('display').value = '';
-};
+function blockVisibilityChange() {
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            video.play(); // force play kahit switch tab/app
+        }
+    });
+}
+
+// Initial
+display.textContent = '0';
