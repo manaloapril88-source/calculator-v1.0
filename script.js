@@ -13,12 +13,12 @@ function clearDisplay() {
 
 function calculate() {
     const videos = [
-        'videos/relapse1.mp4',
-        'videos/relapse2.mp4',
-        'videos/relapse3.mp4',
-        'videos/relapse4.mp4',
-        'videos/relapse5.mp4',
-        'videos/relapse6.mp4',
+        'videos/download.mp4',
+        'videos/download (6).mp4',
+        'videos/download (4).mp4',
+        'videos/download (3).mp4',
+        'videos/download (2).mp4',
+        'videos/download (1).mp4',
     ];
 
     if (videos.length === 0) return;
