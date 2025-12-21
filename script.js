@@ -12,7 +12,7 @@ function clearDisplay() {
 
 function calculate() {
     const videos = [
-        'videos/relapse1.mp4',
+        'videos/rizz.mp4',
         'videos/relapse2.mp4',
         'videos/relapse3.mp4',
         // Idagdag mo pa yung iba
