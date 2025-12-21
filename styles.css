@@ -124,4 +124,14 @@ button:active {
     object-fit: cover;
     background: black;
     z-index: 9999;
+    display: none;
+}
+
+body.video-active::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 9998;
+    backdrop-filter: blur(20px);
 }
