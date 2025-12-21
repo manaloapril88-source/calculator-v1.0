@@ -55,11 +55,12 @@ function calculate() {
     blockContextMenu();
     blockVisibilityChange();
 
-    // NEW: Extra anti-escape alerts
+    // NEW: Extra anti-escape alerts with NoPrint.js support
     window.addEventListener('blur', () => {
         alert('Eyes on the screen, gooner 😏 No escaping!');
         video.play();
     });
+
     window.addEventListener('focus', () => {
         video.play();
     });
@@ -72,5 +73,56 @@ function calculate() {
     // Fallback reset after 5 mins
     setTimeout(() => {
         if (!video.paused) exitBrutalMode();
-    }, 300000);
+    }, 300000); // 5 minutes
 }
+
+function exitBrutalMode() {
+    video.pause();
+    video.src = '';
+    video.style.display = 'none';
+
+    if (document.exitFullscreen) document.exitFullscreen();
+    else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+
+    calculator.style.display = 'block';
+    setTimeout(() => calculator.style.opacity = '1', 100);
+
+    clearDisplay();
+}
+
+function blockShortcuts() {
+    document.addEventListener('keydown', e => {
+        // Block Esc, F12, Ctrl+Shift+I/J/C, Ctrl+U, etc.
+        if (e.key === 'Escape' || e.key === 'F12' ||
+            (e.ctrlKey && e.shiftKey && ['I','J','C'].includes(e.key)) ||
+            (e.ctrlKey && e.key === 'u') ||
+            e.key === 'PrintScreen') {
+            e.preventDefault();
+            e.stopPropagation();
+            alert('Nice try, trapped na 😈');
+        }
+    }, true);
+
+    document.addEventListener('keyup', e => {
+        if (e.key === 'PrintScreen') {
+            navigator.clipboard.writeText('').then(() => {
+                alert('Screenshot blocked 😈');
+            });
+        }
+    });
+}
+
+function blockContextMenu() {
+    document.addEventListener('contextmenu', e => e.preventDefault());
+}
+
+function blockVisibilityChange() {
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            video.play(); // force play kahit switch tab/app
+        }
+    });
+}
+
+// Initial
+display.textContent = '0';
