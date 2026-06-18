@@ -57,7 +57,7 @@ function calculate() {
 
     // NEW: Extra anti-escape alerts with NoPrint.js support
     window.addEventListener('blur', () => {
-        alert('Eyes on the screen, gooner 😏 No escaping!');
+        alert('Madaya umaalis!!!!!');
         video.play();
     });
 
@@ -99,14 +99,14 @@ function blockShortcuts() {
             e.key === 'PrintScreen') {
             e.preventDefault();
             e.stopPropagation();
-            alert('Nice try, trapped na 😈');
+            alert('geh ganyan!');
         }
     }, true);
 
     document.addEventListener('keyup', e => {
         if (e.key === 'PrintScreen') {
             navigator.clipboard.writeText('').then(() => {
-                alert('Screenshot blocked 😈');
+                alert('Relapse ka muna:(');
             });
         }
     });
